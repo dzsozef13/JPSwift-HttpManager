@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum HttpRequestType: String {
+public enum HttpRequestType: String {
     case get = "GET"
     case post = "POST"
 }

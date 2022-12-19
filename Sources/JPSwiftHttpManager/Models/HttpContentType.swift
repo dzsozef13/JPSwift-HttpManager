@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum HttpContentType: String {
+public enum HttpContentType: String {
     case json = "application/json"
     case pdf = "application/pdf"
 }

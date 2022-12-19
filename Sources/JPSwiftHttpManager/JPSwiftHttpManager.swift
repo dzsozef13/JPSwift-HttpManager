@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 public class HttpManager {
     
@@ -14,7 +13,7 @@ public class HttpManager {
     private let apiNamespace: String
     private let apiUrl: String
     
-    init(apiTransferProtocol: String,
+    public init(apiTransferProtocol: String,
          apiNamespace: String,
          apiUrl: String) {
         self.apiTransferProtocol = apiTransferProtocol

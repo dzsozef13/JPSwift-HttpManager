@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum HttpError: Error {
+public enum HttpError: Error {
     case requestCompositionError
     case requestExecutionError
     

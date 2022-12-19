@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum DataError: Error {
+public enum DataError: Error {
     case dataEncodingError(error: Error)
     case dataDecodingError(error: Error)
     case dataParsingError
