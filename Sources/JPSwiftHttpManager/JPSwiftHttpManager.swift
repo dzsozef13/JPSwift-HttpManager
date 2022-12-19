@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class HttpManager {
+public class HttpManager {
     
     private let apiTransferProtocol: String
     private let apiNamespace: String
