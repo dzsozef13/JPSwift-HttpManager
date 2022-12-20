@@ -9,5 +9,4 @@ import Foundation
 
 public enum HttpContentType: String {
     case json = "application/json"
-    case pdf = "application/pdf"
 }

@@ -8,10 +8,10 @@
 import Foundation
 
 class JSONParser {
-    public func parse<T: Decodable>(data: Data, toType: T.Type) throws -> T {
+    public func parse<T: Decodable>(data: Data, to type: T.Type) throws -> T {
         do {
             let decoder = JSONDecoder()
-            let parsedData = try decoder.decode(toType, from: data)
+            let parsedData = try decoder.decode(type, from: data)
             return parsedData
         } catch let error {
             throw DataError.dataDecodingError(error: error)

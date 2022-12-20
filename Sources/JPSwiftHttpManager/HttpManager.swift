@@ -41,9 +41,7 @@ public class HttpManager {
                         var parsedData: T
                         switch contentType {
                         case .json:
-                            parsedData = try JSONParser().parse(data: data, toType: T.self)
-                        case .pdf:
-                            parsedData = try PDFParser().parse(data: data, toType: T.self)
+                            parsedData = try JSONParser().parse(data: data, to: T.self)
                         }
                         
                         // Escape with successfully parsed data
