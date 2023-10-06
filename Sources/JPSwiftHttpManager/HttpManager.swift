@@ -28,11 +28,15 @@ public class HttpManager {
                         endpoint: String,
                         parameters: [String]? = nil,
                         query: [String: String]? = nil,
+                        body: [String: Any]? = nil,
                         completionHandler: @escaping (Result<T, Error>) -> Void) where T: Decodable {
         // Compose request
-        if var request = composeRequest(endpoint: endpoint, parameters: parameters, query: query) {
-            // Set content type
-            request.setValue(contentType.rawValue, forHTTPHeaderField: "Content-Type")
+        if var request = composeRequest(requestType: requestType,
+                                        contentType: contentType,
+                                        endpoint: endpoint,
+                                        parameters: parameters,
+                                        query: query,
+                                        body: body) {
             // Execute request
             execute(request: request) { result in
                 switch result {
@@ -101,9 +105,12 @@ public class HttpManager {
     }
     
     // MARK: Request Composer
-    private func composeRequest(endpoint: String,
+    private func composeRequest(requestType: HttpRequestType,
+                                contentType: HttpContentType,
+                                endpoint: String,
                                 parameters: [String]?,
-                                query: [String: String]?) -> URLRequest? {
+                                query: [String: String]?,
+                                body: [String: Any]?) -> URLRequest? {
         let urlString = URLComposer().compose(apiTransferProtocol: apiTransferProtocol,
                                               apiNamespace: apiNamespace,
                                               apiUrl: apiUrl,
@@ -111,7 +118,19 @@ public class HttpManager {
                                               parameters: parameters,
                                               query: query)
         guard let url = URL(string: urlString) else { return nil }
-        return URLRequest(url: url)
+        var request = URLRequest(url: url)
+        request.httpMethod = requestType.rawValue
+        request.setValue(contentType.rawValue, forHTTPHeaderField: "Content-Type")
+        
+        do {
+            guard let body = body else { return nil }
+            let jsonBody = try JSONSerialization.data(withJSONObject: body)
+            request.httpBody = jsonBody
+            return request
+        }
+        catch {
+            return nil
+        }
     }
     
 }
