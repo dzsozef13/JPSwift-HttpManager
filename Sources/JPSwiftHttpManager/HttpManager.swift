@@ -13,26 +13,38 @@ public class HttpManager {
     private let apiNamespace: String
     private let apiUrl: String
     
-    public init(apiTransferProtocol: String,
-         apiNamespace: String,
-         apiUrl: String) {
+    public init(
+        apiTransferProtocol: String,
+        apiNamespace: String,
+        apiUrl: String
+    ) {
         self.apiTransferProtocol = apiTransferProtocol
         self.apiNamespace = apiNamespace
         self.apiUrl = apiUrl
     }
     
     // MARK: Request Handling
-    public func send<T>(requestType: HttpRequestType,
-                        returnType: T.Type,
-                        contentType: HttpContentType = .json,
-                        endpoint: String,
-                        parameters: [String]? = nil,
-                        query: [String: String]? = nil,
-                        completionHandler: @escaping (Result<T, Error>) -> Void) where T: Decodable {
+    public func send<T>(
+        requestType: HttpRequestType,
+        returnType: T.Type,
+        contentType: HttpContentType = .json,
+        endpoint: String,
+        parameters: [String]? = nil,
+        query: [String: String]? = nil,
+        body: [String: Any]? = nil,
+        authToken: String? = nil,
+        completionHandler: @escaping (Result<T, Error>
+    ) -> Void) where T: Decodable {
         // Compose request
-        if var request = composeRequest(endpoint: endpoint, parameters: parameters, query: query) {
-            // Set content type
-            request.setValue(contentType.rawValue, forHTTPHeaderField: "Content-Type")
+        if var request = composeRequest(
+            requestType: requestType,
+            contentType: contentType,
+            endpoint: endpoint,
+            parameters: parameters,
+            query: query,
+            body: body,
+            authToken: authToken
+        ) {
             // Execute request
             execute(request: request) { result in
                 switch result {
@@ -48,7 +60,8 @@ public class HttpManager {
                         completionHandler(.success(parsedData))
                         return
                         
-                    } catch {
+                    } catch let error {
+                        print(error)
                         completionHandler(.failure(DataError.dataParsingError))
                         return
                     }
@@ -85,7 +98,6 @@ public class HttpManager {
                     // Escape with data from response
                     completionHandler(.success(data))
                     return
-                    
                 } else {
                     print("Empty data in response.")
                     completionHandler(.failure(HttpError.emptyDataError))
@@ -101,17 +113,42 @@ public class HttpManager {
     }
     
     // MARK: Request Composer
-    private func composeRequest(endpoint: String,
-                                parameters: [String]?,
-                                query: [String: String]?) -> URLRequest? {
-        let urlString = URLComposer().compose(apiTransferProtocol: apiTransferProtocol,
-                                              apiNamespace: apiNamespace,
-                                              apiUrl: apiUrl,
-                                              endpoint: endpoint,
-                                              parameters: parameters,
-                                              query: query)
+    private func composeRequest(
+        requestType: HttpRequestType,
+        contentType: HttpContentType,
+        endpoint: String,
+        parameters: [String]?,
+        query: [String: String]?,
+        body: [String: Any]?,
+        authToken: String? = nil
+    ) -> URLRequest? {
+        let urlString = URLComposer().compose(
+            apiTransferProtocol: apiTransferProtocol,
+            apiNamespace: apiNamespace,
+            apiUrl: apiUrl,
+            endpoint: endpoint,
+            parameters: parameters,
+            query: query
+        )
         guard let url = URL(string: urlString) else { return nil }
-        return URLRequest(url: url)
+        var request = URLRequest(url: url)
+        request.httpMethod = requestType.rawValue
+        request.setValue(contentType.rawValue, forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        if let bearerToken = authToken {
+            request.setValue( "Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        }
+        
+        do {
+            if let body = body {
+                let jsonBody = try JSONSerialization.data(withJSONObject: body)
+                request.httpBody = jsonBody
+            }
+            return request
+        }
+        catch {
+            return nil
+        }
     }
     
 }
