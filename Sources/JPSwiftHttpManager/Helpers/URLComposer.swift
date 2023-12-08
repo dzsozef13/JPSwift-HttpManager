@@ -8,12 +8,14 @@
 import Foundation
 
 class URLComposer {
-    public func compose(apiTransferProtocol: String,
-                        apiNamespace: String,
-                        apiUrl: String,
-                        endpoint: String,
-                        parameters: [String]?,
-                        query: [String: String]?) -> String {
+    public func compose(
+        apiTransferProtocol: String,
+        apiNamespace: String,
+        apiUrl: String,
+        endpoint: String,
+        parameters: [String]?,
+        query: [String: String]?
+    ) -> String {
         var url = "\(apiTransferProtocol)://\(apiUrl)/\(apiNamespace)/\(endpoint)"
         if let parameters = parameters {
             for parameter in parameters {
